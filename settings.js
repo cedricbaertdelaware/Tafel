@@ -2,6 +2,7 @@
 import * as db from './db.js';
 import { state, load, setMeta, getMeta } from './state.js';
 import { esc, toast } from './utils.js';
+import { seedSample, removeSample } from './seed.js';
 
 export function applyTheme() { const t = getMeta('theme', 'auto'); t === 'auto' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.dataset.theme = t; }
 
@@ -17,6 +18,7 @@ export function render(root) {
    <p class="muted">iOS can erase website data after weeks of inactivity. Export regularly.<br>Last backup: ${last ? esc(new Date(last).toLocaleString('en-BE')) : 'never'}</p>
    <div class="row"><button class="btn primary" id="exp">Export JSON</button>
    <label class="btn" tabindex="0">Import JSON<input id="imp" type="file" accept="application/json,.json" hidden></label></div></div>
+  <div class="card"><div class="row"><button class="btn" id="rmSample">Remove sample data</button><button class="btn" id="addSample">Add sample data</button></div></div>
   <div class="card"><button class="btn danger" id="reset">Reset all data</button></div>`;
   root.querySelector('#theme').onchange = async e => { await setMeta('theme', e.target.value); applyTheme(); };
   root.querySelector('#serv').onchange = e => setMeta('servings', Math.max(1, +e.target.value || 2));
@@ -34,5 +36,7 @@ export function render(root) {
       await db.importAll(json); await load(); toast('Backup imported'); render(root);
     } catch (err) { toast(err instanceof SyntaxError ? 'File is not valid JSON.' : err.message, { error: true }); }
   };
+  root.querySelector('#rmSample').onclick = async () => { await removeSample(); toast('Sample data removed'); };
+  root.querySelector('#addSample').onclick = async () => { await seedSample(); toast('Sample recipes added'); };
   root.querySelector('#reset').onclick = async () => { if (!confirm('Delete everything? Export first if unsure.')) return; await db.resetAll(); state.meta = {}; await load(); toast('All data reset'); render(root); };
 }
