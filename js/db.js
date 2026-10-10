@@ -23,10 +23,10 @@ export async function exportAll() {
 }
 // Validates shape before touching existing data; throws a readable Error on bad files.
 export async function importAll(json) {
-  if (!json || !['tafel', 'mealplan'].includes(json.app) || typeof json.data !== 'object') throw new Error('This is not a Tafel backup file.');
+  if (!json || !['tafel', 'mealplan'].includes(json.app) || typeof json.data !== 'object') throw new Error('Dit is geen Tafel-back-up.');
   for (const [s, k] of Object.entries(STORES)) {
     const rows = json.data[s] ?? [];
-    if (!Array.isArray(rows) || rows.some(r => !r || typeof r !== 'object' || r[k] == null)) throw new Error(`Backup is corrupt (section "${s}").`);
+    if (!Array.isArray(rows) || rows.some(r => !r || typeof r !== 'object' || r[k] == null)) throw new Error(`Back-up is beschadigd (onderdeel "${s}").`);
   }
   for (const s of Object.keys(STORES)) { await clear(s); for (const r of json.data[s] ?? []) await put(s, r); }
 }

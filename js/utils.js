@@ -11,11 +11,16 @@ export function toast(msg, { undo, error } = {}) {
   t.className = 'toast' + (error ? ' err' : ''); t.setAttribute('role', error ? 'alert' : 'status');
   const span = document.createElement('span'); span.textContent = msg; t.append(span);
   const kill = () => t.remove();
-  if (undo) { const b = document.createElement('button'); b.textContent = 'Undo'; b.onclick = () => { undo(); kill(); }; t.append(b); }
+  if (undo) { const b = document.createElement('button'); b.textContent = 'Ongedaan maken'; b.onclick = () => { undo(); kill(); }; t.append(b); }
   box.append(t); setTimeout(kill, undo ? 6000 : 3500);
 }
 
 // Units: base unit per dimension so compatible quantities can be merged (g/kg, ml/l/tsp/tbsp).
+export const UNIT_NL = { g:'g', kg:'kg', ml:'ml', l:'l', tsp:'tl', tbsp:'el', pcs:'st' };
+export const U = u => UNIT_NL[u] ?? u;
+export const CAT_NL = { produce:'groenten & fruit', dairy:'zuivel', 'meat/fish':'vlees & vis', bakery:'bakker', pantry:'droogwaren', frozen:'diepvries', drinks:'dranken', household:'huishouden', other:'overig' };
+export const C = c => CAT_NL[c] ?? c;
+const ALIAS = { st:'pcs', stuk:'pcs', stuks:'pcs', el:'tbsp', tl:'tsp', gr:'g', gram:'g', liter:'l' };
 export const UNITS = { g:['mass',1], kg:['mass',1000], ml:['vol',1], l:['vol',1000], tsp:['vol',5], tbsp:['vol',15], pcs:['count',1] };
 export function toBase(q, u) { const d = UNITS[u]; return d ? { q: q * d[1], dim: d[0] } : { q, dim: u || 'count' }; }
 export function fromBase(q, dim) {
@@ -27,7 +32,7 @@ export function fromBase(q, dim) {
 export function parseQuick(text) {
   const m = text.trim().match(/^(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/);
   if (!m) return { quantity: 1, unit: 'pcs', name: text.trim() };
-  const q = parseFloat(m[1].replace(',', '.')), u = (m[2] || '').toLowerCase();
+  const q = parseFloat(m[1].replace(',', '.')), u0 = (m[2] || '').toLowerCase(), u = UNITS[u0] ? u0 : (ALIAS[u0] || '');
   if (UNITS[u]) return { quantity: q, unit: u, name: m[3].trim() };
   return { quantity: q, unit: 'pcs', name: ((m[2] ? m[2] + ' ' : '') + m[3]).trim() };
 }
@@ -41,7 +46,7 @@ export function form(title, fields, vals = {}) {
       ? `<select name="${f.name}">${f.options.map(([v, l]) => `<option value="${esc(v)}" ${String(vals[f.name] ?? '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`
       : `<input name="${f.name}" type="${f.type || 'text'}" step="any" ${f.type === 'number' ? 'inputmode="decimal"' : ''} value="${esc(vals[f.name] ?? '')}">`;
     d.innerHTML = `<form method="dialog"><h2 style="margin-top:0">${esc(title)}</h2>${fields.map(f => `<label class="f">${esc(f.label)}${input(f)}</label>`).join('')}
-      <div class="row" style="margin-top:16px"><button class="btn grow" value="x">Cancel</button><button class="btn primary grow" value="ok">Save</button></div></form>`;
+      <div class="row" style="margin-top:16px"><button class="btn grow" value="x">Annuleren</button><button class="btn primary grow" value="ok">Opslaan</button></div></form>`;
     document.body.append(d); d.showModal();
     d.onclose = () => { const ok = d.returnValue === 'ok'; const out = ok ? Object.fromEntries(new FormData(d.querySelector('form'))) : null; d.remove(); res(out); };
   });

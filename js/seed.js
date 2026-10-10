@@ -2,12 +2,12 @@
 import { state, save, remove } from './state.js';
 import { uid } from './utils.js';
 const R = [
- ['Stoofvlees met friet', 4, 30, 180, ['classic', 'winter'], [['beef stewing meat', 800, 'g', 'meat/fish'], ['onion', 3, 'pcs', 'produce'], ['dark Belgian beer', 500, 'ml', 'drinks'], ['brown bread', 2, 'pcs', 'bakery'], ['mustard', 2, 'tbsp', 'pantry'], ['brown sugar', 1, 'tbsp', 'pantry'], ['butter', 50, 'g', 'dairy'], ['potatoes', 1, 'kg', 'produce']],
-  'Brown the beef in butter. Fry the onions, add beer, mustard, sugar and bread spread with mustard. Simmer 2.5-3 hours. Serve with fries.'],
- ['Witloof met ham en kaas', 4, 20, 35, ['classic', 'oven'], [['chicory', 8, 'pcs', 'produce'], ['cooked ham slices', 8, 'pcs', 'meat/fish'], ['grated cheese', 200, 'g', 'dairy'], ['milk', 500, 'ml', 'dairy'], ['butter', 50, 'g', 'dairy'], ['flour', 50, 'g', 'pantry'], ['potatoes', 1, 'kg', 'produce']],
-  'Boil the chicory 10 min, wrap in ham. Make a béchamel with butter, flour and milk, add half the cheese. Pour over, top with cheese, bake 25 min at 200°C. Serve with mash.'],
- ['Spaghetti bolognese', 4, 15, 40, ['quick', 'pasta'], [['spaghetti', 400, 'g', 'pantry'], ['minced meat', 500, 'g', 'meat/fish'], ['onion', 1, 'pcs', 'produce'], ['canned tomatoes', 800, 'g', 'pantry'], ['carrot', 2, 'pcs', 'produce'], ['garlic cloves', 2, 'pcs', 'produce']],
-  'Fry onion, carrot and garlic, brown the meat, add tomatoes and simmer 30 min. Cook the spaghetti and serve.'],
+ ['Stoofvlees met friet', 4, 30, 180, ['klassiek', 'winter'], [['rundsvlees (stoofvlees)', 800, 'g', 'meat/fish'], ['ui', 3, 'pcs', 'produce'], ['donker bier', 500, 'ml', 'drinks'], ['bruin brood', 2, 'pcs', 'bakery'], ['mosterd', 2, 'tbsp', 'pantry'], ['bruine suiker', 1, 'tbsp', 'pantry'], ['boter', 50, 'g', 'dairy'], ['aardappelen', 1, 'kg', 'produce']],
+  'Bruin het vlees in boter. Fruit de uien, voeg bier, mosterd, suiker en met mosterd besmeerd brood toe. Laat 2,5 tot 3 uur sudderen. Serveer met frietjes.'],
+ ['Witloof met ham en kaas', 4, 20, 35, ['klassiek', 'oven'], [['witloof', 8, 'pcs', 'produce'], ['gekookte hesp', 8, 'pcs', 'meat/fish'], ['geraspte kaas', 200, 'g', 'dairy'], ['melk', 500, 'ml', 'dairy'], ['boter', 50, 'g', 'dairy'], ['bloem', 50, 'g', 'pantry'], ['aardappelen', 1, 'kg', 'produce']],
+  'Kook het witloof 10 min en rol er hesp rond. Maak een bechamelsaus met boter, bloem en melk en roer de helft van de kaas erdoor. Giet over het witloof, strooi de rest van de kaas erover en bak 25 min op 200°C. Serveer met puree.'],
+ ['Spaghetti bolognese', 4, 15, 40, ['snel', 'pasta'], [['spaghetti', 400, 'g', 'pantry'], ['gehakt', 500, 'g', 'meat/fish'], ['ui', 1, 'pcs', 'produce'], ['tomatenblokjes', 800, 'g', 'pantry'], ['wortel', 2, 'pcs', 'produce'], ['look (tenen)', 2, 'pcs', 'produce']],
+  'Fruit ui, wortel en look, bruin het gehakt, voeg de tomaten toe en laat 30 min sudderen. Kook de spaghetti en serveer.'],
 ];
 export async function seedSample() {
   for (const [name, servings, prep, cook, tags, rows, instructions] of R) {
