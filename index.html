@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tafel</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#2f9e6e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tafel">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav id="nav" aria-label="Main"></nav>
+<main id="view" tabindex="-1"></main>
+<div id="toasts" aria-live="polite"></div>
+<script>
+// Diagnose: toont een foutmelding i.p.v. een wit scherm als de app niet start.
+(function(){var show=function(m){var v=document.getElementById('view');if(v&&!v.dataset.ok){v.textContent='Tafel kon niet starten: '+m;}};
+window.addEventListener('error',function(e){show(e.message||'onbekende fout')});
+window.addEventListener('unhandledrejection',function(e){show(e.reason&&e.reason.message||'onbekende fout')});
+setTimeout(function(){var n=document.getElementById('nav');if(n&&!n.children.length)show(location.protocol==='file:'?'open de app via een webserver of GitHub Pages, niet als los bestand.':'de scripts zijn niet geladen (controleer of de map js/ is geupload).')},2500);})();
+</script>
+<noscript>Tafel heeft JavaScript nodig.</noscript>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
