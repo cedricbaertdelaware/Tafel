@@ -1,31 +1,1023 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tafel</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="theme-color" content="#2f9e6e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Tafel">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tafel">
+  <meta name="description" content="Jouw eenvoudige boodschappenlijst.">
+  <title>Tafel · Boodschappen</title>
+  <link rel="icon" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --text: #202632;
+      --muted: #818895;
+      --accent: #4169d2;
+      --accent-soft: #edf2ff;
+      --border: #e8eaf0;
+      --danger: #d34444;
+      --shadow: 0 3px 16px rgba(24, 35, 57, .035);
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.45 -apple-system, BlinkMacSystemFont,
+            "Segoe UI", system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button, input { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid #9bb4ff;
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      min-height: 100dvh;
+      margin: auto;
+      padding: max(20px, env(safe-area-inset-top)) 20px
+               calc(130px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      margin-bottom: 35px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 17px;
+      font-weight: 750;
+      letter-spacing: -.5px;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 11px;
+      background: var(--accent);
+      color: white;
+      font-size: 19px;
+    }
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 13px;
+      color: #657081;
+      background: transparent;
+    }
+    .icon-btn:active { background: var(--accent-soft); }
+
+    .heading h1 {
+      font-size: clamp(30px, 6vw, 39px);
+      line-height: 1.1;
+      font-weight: 780;
+      letter-spacing: -1.5px;
+      margin: 0;
+    }
+    .subtitle {
+      margin: 9px 0 27px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 0 -20px 24px;
+      padding: 2px 20px 9px;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter {
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 10px 16px;
+      min-height: 43px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #687181;
+    }
+    .filter.active {
+      color: var(--accent);
+      border-color: #cfdbff;
+      background: var(--accent-soft);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 12px;
+      color: #697282;
+      font-size: 12px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .count {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 19px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .item {
+      display: flex;
+      gap: 13px;
+      align-items: center;
+      min-height: 66px;
+      padding: 10px 12px 10px 17px;
+    }
+    .item + .item { border-top: 1px solid #f0f1f4; }
+
+    .check {
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border: 2px solid #bfc6d1;
+      border-radius: 50%;
+      background: white;
+      display: grid;
+      place-items: center;
+      position: relative;
+      padding: 0;
+      box-shadow: 0 0 0 8px transparent;
+    }
+    .check::after {
+      content: "";
+      width: 11px;
+      height: 6px;
+      border-left: 2px solid white;
+      border-bottom: 2px solid white;
+      transform: rotate(-45deg) translate(1px, -1px);
+      opacity: 0;
+    }
+    .check.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .check.checked::after { opacity: 1; }
+    .check:active { transform: scale(.9); }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 0;
+      text-align: left;
+      background: none;
+      border: 0;
+      color: inherit;
+    }
+    .item-title {
+      font-size: 15px;
+      font-weight: 560;
+      overflow-wrap: anywhere;
+      display: block;
+    }
+    .item.done .item-title {
+      color: #9298a2;
+      text-decoration: line-through;
+    }
+    .item-note {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+    .item-arrow {
+      color: #a8aebb;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .completed {
+      margin-top: 26px;
+      border: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 2px;
+      background: transparent;
+      color: #707989;
+      font-weight: 650;
+      text-align: left;
+      font-size: 14px;
+    }
+    .completed .chevron {
+      display: inline-block;
+      transition: transform .2s;
+    }
+    .completed[aria-expanded="true"] .chevron {
+      transform: rotate(90deg);
+    }
+    .completed-list { margin-top: 9px; }
+    .completed-list[hidden] { display: none; }
+
+    .empty {
+      padding: 55px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-symbol {
+      display: grid;
+      place-items: center;
+      margin: 0 auto 14px;
+      width: 56px;
+      height: 56px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 19px;
+      font-size: 27px;
+    }
+    .empty strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-size: 16px;
+    }
+    .empty p { margin: 0; font-size: 13px; }
+
+    .composer-wrap {
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 16px 16px calc(17px + env(safe-area-inset-bottom));
+      background: linear-gradient(transparent, var(--bg) 24%);
+    }
+    .composer {
+      max-width: 680px;
+      margin: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      border: 1px solid #e4e8f0;
+      border-radius: 19px;
+      padding: 8px 8px 8px 17px;
+      box-shadow: 0 8px 35px rgba(31, 47, 78, .09);
+    }
+    .composer-plus {
+      font-size: 26px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .composer input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      font-size: 16px;
+      color: var(--text);
+      background: transparent;
+    }
+    .composer input::placeholder { color: #a0a6b0; }
+    .add-btn {
+      width: 45px;
+      height: 45px;
+      flex: 0 0 45px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--accent);
+      color: white;
+      font-size: 25px;
+      display: grid;
+      place-items: center;
+    }
+    .add-btn:active { transform: scale(.95); }
+
+    dialog {
+      width: min(100% - 28px, 440px);
+      border: 0;
+      border-radius: 23px;
+      padding: 24px;
+      color: var(--text);
+      background: white;
+      box-shadow: 0 22px 75px #18223b30;
+    }
+    dialog::backdrop {
+      background: rgba(19, 29, 49, .4);
+      backdrop-filter: blur(3px);
+    }
+    dialog h2 { margin: 0 0 22px; font-size: 21px; }
+    .field { display: block; margin-bottom: 16px; }
+    .field > span {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #717a88;
+      margin-bottom: 7px;
+    }
+    .field input, .field select {
+      width: 100%;
+      min-height: 47px;
+      border: 1px solid #dde2eb;
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #fafbfc;
+      font-size: 16px;
+    }
+    .dialog-actions {
+      display: flex;
+      gap: 9px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .btn {
+      min-height: 45px;
+      padding: 10px 17px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      font-weight: 650;
+    }
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn.danger { color: var(--danger); }
+    .menu-actions { display: grid; gap: 8px; }
+    .menu-actions .btn { text-align: left; }
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 30;
+      bottom: calc(105px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 32px);
+      background: #253147;
+      color: white;
+      padding: 12px 17px;
+      border-radius: 13px;
+      font-size: 13px;
+      box-shadow: 0 8px 25px #15203522;
+      text-align: center;
+    }
+    .toast[hidden] { display: none; }
+
+    @media (min-width: 740px) {
+      .app { padding-top: 35px; }
+      .composer-wrap { padding-bottom: 25px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg: #141821;
+        --surface: #202630;
+        --text: #f2f4f7;
+        --muted: #a2aab7;
+        --accent: #87a6ff;
+        --accent-soft: #293654;
+        --border: #343d4b;
+        --shadow: none;
+      }
+      .filter { color: #c5ccd6; }
+      .filter.active { border-color: #4c6196; }
+      .section-label, .completed { color: #aab4c4; }
+      .list .item + .item { border-color: #303746; }
+      .check { background: transparent; border-color: #8a94a5; }
+      .check.checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .check.checked::after { border-color: #172033; }
+      .item.done .item-title { color: #929ba9; }
+      .composer { background: var(--surface); border-color: var(--border); }
+      .composer-wrap {
+        background: linear-gradient(transparent, var(--bg) 24%);
+      }
+      .add-btn { background: var(--accent); color: #172033; }
+      dialog { background: var(--surface); }
+      .field input, .field select {
+        background: #171d26;
+        border-color: var(--border);
+      }
+      .btn { background: #2b3341; border-color: var(--border); }
+      .btn.primary { background: var(--accent); color: #172033; }
+      .empty strong { color: var(--text); }
+      .icon-btn { color: #b4bdca; }
+      .item-arrow { color: #8490a0; }
+    }
+  </style>
 </head>
+
 <body>
-<nav id="nav" aria-label="Hoofdmenu"></nav>
-<main id="view" tabindex="-1"></main>
-<div id="toasts" aria-live="polite"></div>
-<script>
-// Diagnose: toont een foutmelding i.p.v. een wit scherm als de app niet start.
-(function(){var show=function(m){var v=document.getElementById('view');if(v&&!v.dataset.ok){v.textContent='Tafel kon niet starten: '+m;}};
-window.addEventListener('error',function(e){show(e.message||'onbekende fout')});
-window.addEventListener('unhandledrejection',function(e){show(e.reason&&e.reason.message||'onbekende fout')});
-setTimeout(function(){var n=document.getElementById('nav');if(n&&!n.children.length)show(location.protocol==='file:'?'open de app via een webserver of GitHub Pages, niet als los bestand.':'de scripts zijn niet geladen (controleer of de map js/ is geupload).')},2500);})();
-</script>
-<noscript>Tafel heeft JavaScript nodig.</noscript>
-<script type="module" src="js/app.js"></script>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✓</span>
+        Tafel
+      </div>
+      <button class="icon-btn" id="menuButton"
+              aria-label="Meer opties" title="Meer opties">•••</button>
+    </header>
+
+    <section class="heading">
+      <h1>Boodschappen</h1>
+      <p class="subtitle" id="subtitle">Je lijst wordt geladen...</p>
+    </section>
+
+    <nav class="filters" id="filters" aria-label="Filter op winkel"></nav>
+
+    <section aria-label="Nog te kopen">
+      <div class="section-label">
+        <span>Nog te kopen</span>
+        <span class="count" id="activeCount"></span>
+      </div>
+      <div class="list" id="activeList"></div>
+    </section>
+
+    <section>
+      <button class="completed" id="completedToggle"
+              aria-expanded="false" aria-controls="completedList">
+        <span class="chevron">›</span>
+        <span id="completedLabel">Afgevinkt</span>
+      </button>
+      <div class="list completed-list" id="completedList" hidden></div>
+    </section>
+  </main>
+
+  <div class="composer-wrap">
+    <form class="composer" id="addForm">
+      <span class="composer-plus" aria-hidden="true">+</span>
+      <input id="newItem" type="text" autocomplete="off"
+             enterkeyhint="done" maxlength="200"
+             aria-label="Nieuw product"
+             placeholder="Voeg een product toe...">
+      <button class="add-btn" type="submit" aria-label="Toevoegen">↑</button>
+    </form>
+  </div>
+
+  <dialog id="editDialog">
+    <form id="editForm">
+      <h2>Product aanpassen</h2>
+      <input id="editId" type="hidden">
+      <label class="field">
+        <span>Product</span>
+        <input id="editName" required maxlength="200">
+      </label>
+      <label class="field">
+        <span>Hoeveelheid</span>
+        <input id="editQuantity" type="number"
+               min="0.01" step="any" required>
+      </label>
+      <label class="field">
+        <span>Eenheid</span>
+        <select id="editUnit">
+          <option value="pcs">Stuks</option>
+          <option value="g">Gram</option>
+          <option value="kg">Kilogram</option>
+          <option value="ml">Milliliter</option>
+          <option value="l">Liter</option>
+          <option value="tbsp">Eetlepel</option>
+          <option value="tsp">Theelepel</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Winkel</span>
+        <select id="editStore"></select>
+      </label>
+      <label class="field">
+        <span>Notitie (optioneel)</span>
+        <input id="editNote" maxlength="500">
+      </label>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="deleteItem">
+          Verwijder
+        </button>
+        <button type="button" class="btn" id="cancelEdit">
+          Annuleer
+        </button>
+        <button type="submit" class="btn primary">Bewaren</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="menuDialog">
+    <h2>Meer opties</h2>
+    <div class="menu-actions">
+      <button class="btn" id="shareButton">Deel boodschappenlijst</button>
+      <button class="btn" id="exportButton">Exporteer back-up</button>
+      <button class="btn danger" id="clearCompleted">
+        Wis afgevinkte producten
+      </button>
+      <button class="btn" id="closeMenu">Sluiten</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"
+       aria-live="polite" hidden></div>
+
+  <script>
+    "use strict";
+
+    const DB_NAME = "mealplan";
+    const DB_VERSION = 1;
+    const STORES = {
+      stores: "id", ingredients: "id", recipes: "id",
+      plan: "key", shopping: "id", pantry: "id", meta: "id"
+    };
+
+    const $ = id => document.getElementById(id);
+
+    const model = {
+      items: [],
+      stores: [],
+      ingredients: [],
+      filter: "all",
+      completedOpen: false
+    };
+
+    const unitLabels = {
+      pcs: "stuks", g: "g", kg: "kg", ml: "ml",
+      l: "l", tbsp: "el", tsp: "tl"
+    };
+
+    const makeId = () =>
+      crypto.randomUUID ? crypto.randomUUID() :
+      Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+    const escapeHtml = value => String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+    const dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        for (const [name, keyPath] of Object.entries(STORES)) {
+          if (!db.objectStoreNames.contains(name)) {
+            db.createObjectStore(name, { keyPath });
+          }
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    async function transaction(store, mode, operation) {
+      const db = await dbPromise;
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(store, mode);
+        const request = operation(tx.objectStore(store));
+        tx.oncomplete = () => resolve(request?.result);
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+    }
+
+    const getAll = store =>
+      transaction(store, "readonly", s => s.getAll());
+
+    const put = (store, value) =>
+      transaction(store, "readwrite", s => s.put(value));
+
+    const remove = (store, id) =>
+      transaction(store, "readwrite", s => s.delete(id));
+
+    async function load() {
+      const [items, stores, ingredients] = await Promise.all([
+        getAll("shopping"), getAll("stores"), getAll("ingredients")
+      ]);
+      model.items = items;
+      model.stores = stores.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      model.ingredients = ingredients;
+      render();
+    }
+
+    function visibleItems() {
+      return model.items.filter(item =>
+        model.filter === "all" ||
+        (model.filter === "none"
+          ? !item.storeId || !model.stores.some(s => s.id === item.storeId)
+          : item.storeId === model.filter)
+      );
+    }
+
+    function itemDetails(item) {
+      const parts = [];
+      const q = Number(item.quantity);
+      if (Number.isFinite(q) && q > 0 &&
+          (q !== 1 || (item.unit && item.unit !== "pcs"))) {
+        parts.push(`${q.toLocaleString("nl-BE")} ${unitLabels[item.unit] || item.unit}`);
+      }
+      const store = model.stores.find(s => s.id === item.storeId);
+      if (store) parts.push(store.name);
+      if (item.note) parts.push(item.note);
+      return parts.join(" · ");
+    }
+
+    function itemHtml(item) {
+      const name = escapeHtml(item.name);
+      const details = itemDetails(item);
+      return `
+        <div class="item ${item.checked ? "done" : ""}"
+             data-id="${escapeHtml(item.id)}">
+          <button class="check ${item.checked ? "checked" : ""}"
+                  data-action="toggle"
+                  role="checkbox"
+                  aria-checked="${!!item.checked}"
+                  aria-label="${escapeHtml(item.checked ? "Opnieuw toevoegen: " : "Afvinken: ")}${name}">
+          </button>
+          <button class="item-content" data-action="edit"
+                  aria-label="Bewerk ${name}">
+            <span class="item-title">${name}</span>
+            ${details ? `<span class="item-note">${escapeHtml(details)}</span>` : ""}
+          </button>
+          <span class="item-arrow" aria-hidden="true">›</span>
+        </div>`;
+    }
+
+    function renderFilters() {
+      const options = [
+        { id: "all", name: "Alles" },
+        ...model.stores.map(s => ({ id: s.id, name: s.name })),
+        { id: "none", name: "Andere" }
+      ];
+      $("filters").innerHTML = options.map(option => `
+        <button class="filter ${model.filter === option.id ? "active" : ""}"
+                data-filter="${escapeHtml(option.id)}"
+                aria-pressed="${model.filter === option.id}">
+          ${escapeHtml(option.name)}
+        </button>`).join("");
+    }
+
+    function render() {
+      renderFilters();
+
+      const visible = visibleItems();
+      const active = visible.filter(i => !i.checked)
+        .sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+      const completed = visible.filter(i => i.checked);
+
+      $("activeCount").textContent = `${active.length} producten`;
+      $("subtitle").textContent = active.length === 0
+        ? "Je bent helemaal klaar!"
+        : `${active.length} ${active.length === 1 ? "product" : "producten"} nog te kopen`;
+
+      $("activeList").innerHTML = active.length
+        ? active.map(itemHtml).join("")
+        : `<div class="empty">
+             <span class="empty-symbol">✓</span>
+             <strong>Alles afgevinkt!</strong>
+             <p>Voeg hieronder iets toe aan je lijst.</p>
+           </div>`;
+
+      $("completedLabel").textContent = `Afgevinkt (${completed.length})`;
+      $("completedToggle").setAttribute(
+        "aria-expanded", String(model.completedOpen)
+      );
+      $("completedList").hidden = !model.completedOpen;
+      $("completedList").innerHTML = completed.length
+        ? completed.map(itemHtml).join("")
+        : `<div class="empty"><p>Nog niets afgevinkt.</p></div>`;
+    }
+
+    let toastTimer;
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+    }
+
+    async function addItem(text) {
+      const raw = text.trim();
+      if (!raw) return;
+
+      // Supports input such as "2 kg aardappelen" or "3 appels".
+      const match = raw.match(
+        /^(\d+(?:[.,]\d+)?)\s*(kg|g|ml|l|stuks|pcs|el|tl)?\s+(.+)$/i
+      );
+
+      let name = raw, quantity = 1, unit = "pcs";
+      if (match) {
+        quantity = Number(match[1].replace(",", "."));
+        unit = ({
+          stuks: "pcs", el: "tbsp", tl: "tsp"
+        })[match[2]?.toLowerCase()] ||
+          match[2]?.toLowerCase() || "pcs";
+        name = match[3].trim();
+      }
+
+      if (!name || quantity <= 0 || !Number.isFinite(quantity)) {
+        toast("Controleer het product.");
+        return;
+      }
+
+      // Keep the original ingredient linkage compatible with classic Tafel.
+      let ingredient = model.ingredients.find(i =>
+        i.name.toLowerCase() === name.toLowerCase()
+      );
+
+      if (!ingredient) {
+        ingredient = {
+          id: makeId(), name, category: "other",
+          preferredStoreId: null, alternativeStoreIds: [],
+          price: null, priceUnit: null, notes: ""
+        };
+        await put("ingredients", ingredient);
+        model.ingredients.push(ingredient);
+      }
+
+      const item = {
+        id: makeId(),
+        ingredientId: ingredient.id,
+        name,
+        quantity,
+        unit,
+        storeId: model.filter !== "all" && model.filter !== "none"
+          ? model.filter : (ingredient.preferredStoreId || null),
+        category: ingredient.category || "other",
+        note: "",
+        checked: false,
+        source: "manual",
+        addedAt: Date.now()
+      };
+
+      await put("shopping", item);
+      model.items.push(item);
+      render();
+    }
+
+    async function toggleItem(id) {
+      const item = model.items.find(i => i.id === id);
+      if (!item) return;
+      const next = { ...item, checked: !item.checked };
+      await put("shopping", next);
+      model.items = model.items.map(i => i.id === id ? next : i);
+      render();
+    }
+
+    function openEdit(id) {
+      const item = model.items.find(i => i.id === id);
+      if (!item) return;
+
+      $("editId").value = item.id;
+      $("editName").value = item.name;
+      $("editQuantity").value = item.quantity || 1;
+      $("editNote").value = item.note || "";
+
+      const unitSelect = $("editUnit");
+      if (item.unit && ![...unitSelect.options].some(o => o.value === item.unit)) {
+        unitSelect.add(new Option(item.unit, item.unit));
+      }
+      unitSelect.value = item.unit || "pcs";
+
+      $("editStore").innerHTML =
+        `<option value="">Geen specifieke winkel</option>` +
+        model.stores.map(s =>
+          `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`
+        ).join("");
+      $("editStore").value = item.storeId || "";
+      $("editDialog").showModal();
+    }
+
+    async function saveEdit(event) {
+      event.preventDefault();
+      const id = $("editId").value;
+      const item = model.items.find(i => i.id === id);
+      if (!item) return;
+
+      const name = $("editName").value.trim();
+      const quantity = Number($("editQuantity").value);
+      if (!name || !Number.isFinite(quantity) || quantity <= 0) return;
+
+      const next = {
+        ...item, name, quantity,
+        unit: $("editUnit").value,
+        storeId: $("editStore").value || null,
+        note: $("editNote").value.trim()
+      };
+
+      await put("shopping", next);
+      model.items = model.items.map(i => i.id === id ? next : i);
+      $("editDialog").close();
+      render();
+      toast("Wijzigingen bewaard");
+    }
+
+    async function deleteItem() {
+      const id = $("editId").value;
+      await remove("shopping", id);
+      model.items = model.items.filter(i => i.id !== id);
+      $("editDialog").close();
+      render();
+      toast("Product verwijderd");
+    }
+
+    async function clearCompleted() {
+      const completed = model.items.filter(i => i.checked);
+      if (!completed.length) {
+        $("menuDialog").close();
+        toast("Geen afgevinkte producten");
+        return;
+      }
+      if (!confirm(`Wil je ${completed.length} afgevinkte producten wissen?`)) return;
+      for (const item of completed) await remove("shopping", item.id);
+      model.items = model.items.filter(i => !i.checked);
+      $("menuDialog").close();
+      render();
+      toast("Afgevinkte producten gewist");
+    }
+
+    function shareText() {
+      const items = model.items.filter(i => !i.checked);
+      return "Boodschappen\n\n" +
+        items.map(i => "○ " + i.name +
+          (itemDetails(i) ? ` (${itemDetails(i)})` : "")).join("\n");
+    }
+
+    async function shareList() {
+      $("menuDialog").close();
+      const text = shareText();
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "Boodschappen", text });
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(text);
+          toast("Lijst gekopieerd");
+        } else {
+          toast("Delen is niet beschikbaar");
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") toast("Delen mislukt");
+      }
+    }
+
+    async function exportBackup() {
+      try {
+        const data = {};
+        for (const store of Object.keys(STORES)) {
+          data[store] = await getAll(store);
+        }
+        const backup = {
+          app: "tafel",
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          data
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)],
+                              { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tafel-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        $("menuDialog").close();
+        toast("Back-up geëxporteerd");
+      } catch (error) {
+        toast("Back-up maken mislukt");
+      }
+    }
+
+    $("addForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = $("newItem");
+      const text = input.value.trim();
+      if (!text) return;
+      input.disabled = true;
+      try {
+        await addItem(text);
+        input.value = "";
+      } catch (error) {
+        toast("Product toevoegen mislukt");
+        console.error(error);
+      } finally {
+        input.disabled = false;
+        // Avoid automatically opening the iPhone keyboard after adding.
+        if (!matchMedia("(pointer: coarse)").matches) input.focus();
+      }
+    });
+
+    document.addEventListener("click", async event => {
+      const filter = event.target.closest("[data-filter]");
+      if (filter) {
+        model.filter = filter.dataset.filter;
+        render();
+        return;
+      }
+
+      const button = event.target.closest("[data-action]");
+      if (button) {
+        const id = button.closest("[data-id]")?.dataset.id;
+        if (!id) return;
+        try {
+          if (button.dataset.action === "toggle") await toggleItem(id);
+          if (button.dataset.action === "edit") openEdit(id);
+        } catch (error) {
+          console.error(error);
+          toast("Wijziging mislukt");
+        }
+      }
+    });
+
+    $("completedToggle").onclick = () => {
+      model.completedOpen = !model.completedOpen;
+      render();
+    };
+
+    $("editForm").onsubmit = async event => {
+      try { await saveEdit(event); }
+      catch (error) { console.error(error); toast("Bewaren mislukt"); }
+    };
+    $("cancelEdit").onclick = () => $("editDialog").close();
+    $("deleteItem").onclick = async () => {
+      try { await deleteItem(); }
+      catch (error) { console.error(error); toast("Verwijderen mislukt"); }
+    };
+
+    $("menuButton").onclick = () => $("menuDialog").showModal();
+    $("closeMenu").onclick = () => $("menuDialog").close();
+    $("clearCompleted").onclick = () =>
+      clearCompleted().catch(error => {
+        console.error(error);
+        toast("Wissen mislukt");
+      });
+    $("shareButton").onclick = shareList;
+    $("exportButton").onclick = exportBackup;
+
+    load().catch(error => {
+      console.error(error);
+      $("subtitle").textContent =
+        "Kon je boodschappen niet laden. Controleer de browseropslag.";
+      toast("Er is een probleem met de lokale opslag");
+    });
+
+    // The redesigned app is self-contained and does not need the old
+    // service worker, which could otherwise keep serving older UI files.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations()
+        .then(registrations => {
+          for (const registration of registrations) {
+            if (registration.active?.scriptURL.endsWith("/sw.js")) {
+              registration.unregister();
+            }
+          }
+        })
+        .catch(console.error);
+    }
+  </script>
 </body>
 </html>
